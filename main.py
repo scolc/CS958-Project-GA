@@ -1,4 +1,6 @@
 from tkinter import *
+import sudoku_grid as sg
+import ga_solver
 
 
 class GUI():
@@ -120,19 +122,29 @@ class GUI():
         """
         # Confirm user choice to continue
 
-        # Build grid class from user entry
-        # hard coded grid for testing
-        row = [1,2,3,4,5,6,7,8,9]
-        grid = []
-        for entry in range(9):
-            grid.append(row)
-
         # Check user entry follows sudoku rules
 
+        # Build grid class from user entry
+        grid = sg.SudokuGrid()
+        print(grid)
+        # hard coded grid for testing
+        #testrow = [1,2,3,4,5,6,7,8,9]
+        #for rownum in range(len(grid.row)):
+        #    grid.row[rownum] = testrow
+        #print(grid)
+        
         # Run GA
+        ga_limits = [(1,9,int)] * 9
+        ga = ga_solver.GaSolver(f=grid , limits= ga_limits)
+        for row in grid.row:
+            ga.solve()
+            ga.population.sort(key=lambda x: x.fitness, reverse=True)
+            row.clear()
+            row += ga.population[1].parameters
 
         # Update grid ui
         self.update_grid_ui(grid)
+        print(grid)
 
     def update_grid_ui(self, grid):
         """
@@ -140,7 +152,8 @@ class GUI():
         """
         for ui_row in range(len(self.grid_ui)):
             for cell in range(len(self.grid_ui[ui_row])):
-                self.grid_ui[ui_row][cell].insert(0, grid[ui_row][cell])
+                self.grid_ui[ui_row][cell].delete(0, END)
+                self.grid_ui[ui_row][cell].insert(0, grid.row[ui_row][cell])
 
 
 

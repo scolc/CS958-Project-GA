@@ -3,7 +3,7 @@ import unittest
 
 class TestMain(unittest.TestCase):
     """
-    A class to perform unittests on faunctions
+    A class to perform unittests on functions
     in main
     """
 
