@@ -7,33 +7,286 @@ class TestMain(unittest.TestCase):
     in sudoku_grid
     """
 
+    def build_test_grid(self):
+        """
+        A function to build the grid used in tests
+        """
+        
+        grid = sudoku_grid.SudokuGrid()
+
+        # lists for cells
+        test_lists = []
+        list1 = [1,2,3,4,5,6,7,8,9] # 9 out of  9
+        test_lists.append(list1)
+        test_lists.append(list1)
+        list2 = [1] * 9             # 1 out of 9
+        test_lists.append(list2)
+        list3 = [] * 9              # 0 out of 9
+        test_lists.append(list3)
+        list4 = [1,1,2,2,2,3,3,3,3] # 3 out of 9
+        test_lists.append(list4)
+
+        for list in test_lists:
+            row = []
+            for entry in list:
+                cell = []
+                cell.append(entry)
+                row.append(cell)
+            grid.ga_p1_pos_cells.append(row)
+
+        # lists for rows
+        rows = []
+        rows.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
+        rows.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
+        rows.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
+        rows.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
+        rows.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
+        rows.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
+        rows.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
+        rows.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
+        rows.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
+
+        for entry in rows:
+            current_row = []
+            current_row.append(entry)
+            grid.ga_p2_pos_rows.append(current_row)
+
+        # lists for box rows
+        box_rows = []
+        box_rows.append([[8, 9, 1, 2, 3, 5, 7, 4, 6],[6, 7, 4, 9, 8, 1, 5, 3, 2],[3, 5, 2, 7, 4, 6, 1, 8, 9]])
+        box_rows.append([[9, 4, 5, 3, 6, 2, 8, 7, 1],[1, 6, 3, 8, 5, 7, 2, 9, 4],[2, 8, 7, 1, 9, 4, 6, 5, 3]])
+        box_rows.append([[5, 3, 6, 4, 2, 8, 9, 1, 7],[7, 2, 9, 5, 1, 3, 4, 6, 8],[4, 1, 8, 6, 7, 9, 3, 2, 5]])
+
+        for entry in box_rows:
+            current_box = []
+            current_box.append(entry)
+            grid.ga_p3_pos_box_rows.append(current_box)
+
+        return grid
+
+
+
     def test_fitness(self):
         """
         A function to test the fitness function
         of the SudokuGrid class
         """
-        grid = sudoku_grid.SudokuGrid()
-        list1 = [1,2,3,4,5,6,7,8,9]
-        list2 = [1] * 9
-        list3 = [] * 9
-        list4 = [1,1,2,2,2,3,3,3,3]
-        self.assertEqual(grid.fitness(list1), 9)
-        self.assertEqual(grid.fitness(list2), 1)
-        self.assertEqual(grid.fitness(list3), 0)
-        self.assertEqual(grid.fitness(list4), 3)
+        grid = self.build_test_grid()
+        #test_lists = []
+        #list1 = [1,2,3,4,5,6,7,8,9] # 9 out of  9
+        #test_lists.append(list1)
+        #test_lists.append(list1)
+        #list2 = [1] * 9             # 1 out of 9
+        #test_lists.append(list2)
+        #list3 = [] * 9              # 0 out of 9
+        #test_lists.append(list3)
+        #list4 = [1,1,2,2,2,3,3,3,3] # 3 out of 9
+        #test_lists.append(list4)
 
+        #for list in test_lists:
+        #    row = []
+        #    for entry in list:
+        #        cell = []
+        #        cell.append(entry)
+        #        row.append(cell)
+        #    grid.ga_p1_pos_cells.append(row)
+
+        
+        params = [0] * 9
+        grid.phase = 1
+        # row[0] is list1
+        grid.current_row = 0
+        self.assertEqual(grid.fitness(params), 100)
+
+        # row[1] is list1
+        grid.current_row = 1
+        self.assertEqual(grid.fitness(params), 100)
+
+        # row[2] is list2
+        grid.current_row = 2
+        self.assertEqual(grid.fitness(params), 1/9 * 100)
+        
+        # row[3] is list3
+        grid.current_row = 3
+        self.assertEqual(grid.fitness(params), 0)
+
+        # row[4] is list4
+        grid.current_row = 4
+        self.assertEqual(grid.fitness(params), 3/9 * 100)
+    
+    
     def test_call(self):
         """
         A function to test the __call__ function
         of the SudokuGrid class
         """
+        grid = self.build_test_grid()
+        
+        # phase 1, find rows
+        params = [0] * 9
+        grid.phase = 1
+        # row[0] is list1
+        grid.current_row = 0
+        self.assertEqual(grid(params), 100)
+
+        # row[1] is list1
+        grid.current_row = 1
+        self.assertEqual(grid(params), 100)
+
+        # row[2] is list2
+        grid.current_row = 2
+        self.assertEqual(grid(params), 1/9 * 100)
+        
+        # row[3] is list3
+        grid.current_row = 3
+        self.assertEqual(grid(params), 0)
+
+        # row[4] is list4
+        grid.current_row = 4
+        self.assertEqual(grid(params), 3/9 * 100)
+
+        # phase 2, find box rows (groups of 3 rows)
+        grid.phase = 2
+        params = [0] * 3
+        # box row 0, top 3 rows
+        grid.current_row = 0
+        self.assertEqual(grid(params), 100)
+        # box row 1, mid 3 rows
+        grid.current_row = 1
+        self.assertEqual(grid(params), 100)
+        # box row 2, mid 3 rows
+        grid.current_row = 2
+        self.assertEqual(grid(params), 100)
+        
+        # phase 3, find grid (groups of 3 box rows)
+        grid.phase = 3
+        params = [0] * 3
+        self.assertEqual(grid(params), 100)
+
+
+    def test_fitness_columns(self):
+        """
+        A function to test the fitness_columns function
+        of the SudokuGrid class
+        """
+
         grid = sudoku_grid.SudokuGrid()
-        list1 = [1,2,3,4,5,6,7,8,9]
-        list2 = [1] * 9
-        list3 = [] * 9
-        self.assertEqual(grid(list1), 9)
-        self.assertEqual(grid(list2), 1)
-        self.assertEqual(grid(list3), 0)
+        rows1 = []
+        rows1.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
+        rows1.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
+        rows1.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
+        rows1.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
+        rows1.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
+        rows1.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
+        rows1.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
+        rows1.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
+        rows1.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
+
+        self.assertEqual(grid.fitness_columns(rows1), 81)
+
+        rows2 = []
+        for i in range(9):
+            rows2.append([1] * 9)
+        self.assertEqual(grid.fitness_columns(rows2), 9)
+
+
+    def test_fitness_box_row(self):
+        """
+        A function to test the fitness_boxes function
+        of the SudokuGrid class
+        """
+
+        grid = sudoku_grid.SudokuGrid()
+        box_row1 = ([[8, 9, 1, 2, 3, 5, 7, 4, 6],[6, 7, 4, 9, 8, 1, 5, 3, 2],[3, 5, 2, 7, 4, 6, 1, 8, 9]])
+        box_row2 = ([[9, 4, 5, 3, 6, 2, 8, 7, 1],[1, 6, 3, 8, 5, 7, 2, 9, 4],[2, 8, 7, 1, 9, 4, 6, 5, 3]])
+        box_row3 = ([[5, 3, 6, 4, 2, 8, 9, 1, 7],[7, 2, 9, 5, 1, 3, 4, 6, 8],[4, 1, 8, 6, 7, 9, 3, 2, 5]])
+        self.assertEqual(grid.fitness_box_row(box_row1), 27)
+        self.assertEqual(grid.fitness_box_row(box_row2), 27)
+        self.assertEqual(grid.fitness_box_row(box_row3), 27)
+
+        box_row4 = ([[1] * 9,[1] * 9,[1]] * 9)
+        self.assertEqual(grid.fitness_box_row(box_row4), 3)
+
+    def test_calculate_fitness(self):
+        """
+        A function to test the calculate_fitness function
+        of the SudokuGrid class
+        """
+        grid = sudoku_grid.SudokuGrid()
+        list1 = ([[8, 9, 1, 2, 3, 5, 7, 4, 6]]) # single row
+        list2 = ([[9, 4, 5, 3, 6, 2, 8, 7, 1],[1, 6, 3, 8, 5, 7, 2, 9, 4],[2, 8, 7, 1, 9, 4, 6, 5, 3]]) # a box row
+        list3 = ([[1] * 9,[1] * 9,[1] * 9])
+
+        self.assertEqual(grid.calculate_fitness(list1), 9)
+        self.assertEqual(grid.calculate_fitness(list2), 27)
+        self.assertEqual(grid.calculate_fitness(list3), 3)
+
+    def test_get_columns(self):
+        """
+        A function to test the get_columns function
+        of the SudokuGrid class
+        """
+        grid = sudoku_grid.SudokuGrid()
+        rows1 = []
+        rows1.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
+        rows1.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
+        rows1.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
+        rows1.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
+        rows1.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
+        rows1.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
+        rows1.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
+        rows1.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
+        rows1.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
+
+        rows2 = []
+        rows2.append([8, 6, 3, 9, 1, 2, 5, 7, 4])
+        rows2.append([9, 7, 5, 4, 6, 8, 3, 2, 1])
+        rows2.append([1, 4, 2, 5, 3, 7, 6, 9, 8])
+        rows2.append([2, 9, 7, 3, 8, 1, 4, 5, 6])
+        rows2.append([3, 8, 4, 6, 5, 9, 2, 1, 7])
+        rows2.append([5, 1, 6, 2, 7, 4, 8, 3, 9])
+        rows2.append([7, 5, 1, 8, 2, 6, 9, 4, 3])
+        rows2.append([4, 3, 8, 7, 9, 5, 1, 6, 2])
+        rows2.append([6, 2, 9, 1, 4, 3, 7, 8, 5])
+
+        self.assertEqual(grid.get_columns(rows1), rows2)
+
+
+    def test_get_box_row(self):
+        """
+        A function to test the get_box_row function
+        of the SudokuGrid class
+        """
+        grid = sudoku_grid.SudokuGrid()
+        
+        box_row1 = ([[8, 9, 1, 2, 3, 5, 7, 4, 6],[6, 7, 4, 9, 8, 1, 5, 3, 2],[3, 5, 2, 7, 4, 6, 1, 8, 9]])
+        box_list = ([[8, 9, 1, 6, 7, 4, 3, 5, 2],[2, 3, 5, 9, 8, 1, 7, 4, 6],[7, 4, 6, 5, 3, 2, 1, 8, 9]])
+
+        self.assertEqual(grid.get_box_row(box_row1), box_list)
+
+    def test_get_boxes(self):
+        """
+        A function to test the get_boxes function
+        of the SudokuGrid class
+        """
+        grid = sudoku_grid.SudokuGrid()
+        rows = []
+
+        rows.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
+        rows.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
+        rows.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
+        rows.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
+        rows.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
+        rows.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
+        rows.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
+        rows.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
+        rows.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
+
+        box_list = ([[8, 9, 1, 6, 7, 4, 3, 5, 2],[2, 3, 5, 9, 8, 1, 7, 4, 6],[7, 4, 6, 5, 3, 2, 1, 8, 9],
+                    [9, 4, 5, 1, 6, 3, 2, 8, 7],[3, 6, 2, 8, 5, 7, 1, 9, 4],[8, 7, 1, 2, 9, 4, 6, 5, 3],
+                    [5, 3, 6, 7, 2, 9, 4, 1, 8],[4, 2, 8, 5, 1, 3, 6, 7, 9],[9, 1, 7, 4, 6, 8, 3, 2, 5]])
+
+        self.assertEqual(grid.get_boxes(rows), box_list)
 
 if __name__ == "__main__":
     unittest.main()
