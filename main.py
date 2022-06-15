@@ -1,6 +1,9 @@
+from sre_parse import State
 from tkinter import *
 import sudoku_grid as sg
 import ga_solver
+import grid_solver as gsol
+import threading
 
 
 class GUI():
@@ -126,34 +129,91 @@ class GUI():
 
         # Build grid class from user entry
         grid = sg.SudokuGrid()
+        rows = self.get_user_rows()
+
+        #rows = []
+        #rows.append([0, 0, 2, 1, 0, 0, 0, 7, 0])
+        #rows.append([0, 8, 0, 0, 0, 6, 0, 0, 1])
+        #rows.append([1, 3, 0, 0, 8, 0, 0, 0, 2])
+        #rows.append([0, 5, 9, 0, 0, 8, 2, 0, 0])
+        #rows.append([0, 0, 0, 3, 9, 1, 0, 0, 0])
+        #rows.append([0, 0, 7, 5, 0, 0, 3, 8, 0])
+        #rows.append([2, 0, 0, 0, 5, 0, 0, 3, 7])
+        #rows.append([8, 0, 0, 6, 0, 0, 0, 2, 0])
+        #rows.append([0, 7, 0, 0, 0, 3, 4, 0, 0])
+
+        grid.user_rows.clear()
+        grid.user_rows = rows
         print(grid)
-        # hard coded grid for testing
-        #testrow = [1,2,3,4,5,6,7,8,9]
-        #for rownum in range(len(grid.row)):
-        #    grid.row[rownum] = testrow
-        #print(grid)
         
         # Run GA
-        ga_limits = [(1,9,int)] * 9
-        ga = ga_solver.GaSolver(f=grid , limits= ga_limits)
-        for row in grid.row:
-            ga.solve()
-            ga.population.sort(key=lambda x: x.fitness, reverse=True)
-            row.clear()
-            row += ga.population[1].parameters
+        t1 = threading.Thread(target=self.run_ga, args=[grid])
+        t1.start()
+
+    def get_user_rows(self):
+        """
+        A function to read user entry and return it as a list
+        """
+        rows = []
+        for ui_row in range(len(self.grid_ui)):
+            this_row = []
+            for cell in range(len(self.grid_ui[ui_row])):
+                entry = self.grid_ui[ui_row][cell].get()
+                if entry.isdigit():
+                    this_row.append(int(entry))
+                    self.grid_ui[ui_row][cell].config(fg='blue')
+                    #self.grid_ui[ui_row][cell].config(disabledb='green')
+
+                else:
+                    this_row.append(0)
+            rows.append(this_row)
+
+        return rows
+        
+        
+
+        
+
+    def run_ga(self, grid: sg.SudokuGrid):
+        """
+        A function to handle running the genetic algorithm to
+        complete the grid
+        """
+        # Disable Solve button and grid to prevent entry
+        self.solve_btn.config(state='disabled')
+        for ui_row in range(len(self.grid_ui)):
+            for cell in range(len(self.grid_ui[ui_row])):
+                self.grid_ui[ui_row][cell].config(state='disabled')
+                
+
+
+        # Run GA
+        solver = gsol.GridSolver(grid)
+        solved = solver.run()
 
         # Update grid ui
-        self.update_grid_ui(grid)
-        print(grid)
+        for ui_row in range(len(self.grid_ui)):
+            for cell in range(len(self.grid_ui[ui_row])):
+                self.grid_ui[ui_row][cell].config(state='normal')
+        if solved:
+            self.update_grid_ui(grid)
+            print(grid.current_solution)
+        self.solve_btn.config(state='active')
 
-    def update_grid_ui(self, grid):
+
+
+    def update_grid_ui(self, grid: sg.SudokuGrid):
         """
         A function to update the grid ui
         """
         for ui_row in range(len(self.grid_ui)):
             for cell in range(len(self.grid_ui[ui_row])):
                 self.grid_ui[ui_row][cell].delete(0, END)
-                self.grid_ui[ui_row][cell].insert(0, grid.row[ui_row][cell])
+                self.grid_ui[ui_row][cell].insert(0, grid.current_solution[ui_row][cell])
+
+        
+
+
 
 
 

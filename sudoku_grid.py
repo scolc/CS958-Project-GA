@@ -6,15 +6,21 @@ class SudokuGrid:
     """
 
     def __init__(self):
-        self.row = []
+        self.user_rows = []
+        self.current_solution = []
+        self.ga_p1_pos_cells = []
+        self.ga_p2_pos_rows = []
+        self.ga_p3_pos_box_rows = []
         for entry in range(9):
             this_row = [0] * 9
-            self.row.append(this_row)
+            self.user_rows.append(this_row)
+        self.current_row = 0
+        self.phase = 0
 
     def __repr__(self):
         result = "Grid\n"
         rownum = 0
-        for row in self.row:
+        for row in self.user_rows:
             rownum += 1
             cellnum = 0
             for cell in row:
@@ -39,13 +45,124 @@ class SudokuGrid:
         A function that calculates the fitness value for parameters
         from a genetic algorithm
         """
-        valid = 0
-        for entry in params:
-            # Check entry is a number
-            if entry >= 1 and entry <= 9:
-                valid += 1
-        if valid == len(params):
-            # remove duplicates and return difference as fitness
-            return len(set(params))
+        if self.phase == 1: #cells
+            temp_row = []
+            param_index = 0
+            max_fitness = 9
+            # build row
+            for cell in self.ga_p1_pos_cells[self.current_row]:
+                temp_row.append(cell[params[param_index]])
+                param_index += 1
+            return self.calculate_fitness([temp_row]) / max_fitness * 100 #len(set(temp_row)) / max_fitness * 100
+        
+        elif self.phase == 2: # trying boxes
+            temp_box_row = []
+            max_fitness = 27
+            #build box row
+            for index in range(3):
+                temp_box_row.append(self.ga_p2_pos_rows[(self.current_row * 3) + index][params[index]])
+            fitness_box_row = self.fitness_box_row(temp_box_row)
+            return fitness_box_row / max_fitness * 100
+
+        elif self.phase == 3: #grid
+            temp_grid = []
+            max_fitness = 81
+            # build grid
+            for index in range(len(params)):
+                temp_box_row = self.ga_p3_pos_box_rows[index][params[index]]
+                for entry in temp_box_row:
+                    temp_grid.append(entry)
+            # Columns
+            fitness_col = self.fitness_columns(temp_grid)
+            # Boxes
+            #fitness_box = self.fitness_boxes(temp_grid)
+            # Return percent complete
+            return fitness_col / max_fitness * 100 # + fitness_box
         else:
             return 0
+
+    def fitness_columns(self, grid):
+        """
+        A function that returns total fitness for each column in a grid
+        """
+        col_list = self.get_columns(grid)
+        
+        return self.calculate_fitness(col_list) # max 81
+    
+    # deprecated by fitness_box_row
+    # def fitness_boxes(self, grid):
+    #    """
+    #    A function that returns total fitness for each 3 x 3 box in a grid
+    #    """
+    #    
+    #    #turn grid into box list
+    #    box_list = self.get_boxes(grid)
+    #    
+    #    return self.calculate_fitness(box_list) # max 81
+
+    def fitness_box_row(self, box_row):
+        """
+        A function that takes a list representing a box row
+        and returns a fitness value
+        """
+        box_list = self.get_box_row(box_row)
+        return self.calculate_fitness(box_list) # max 27
+
+    def calculate_fitness(self, grid):
+        """
+        A function that takes a list representing a grid configuration
+        of rows, columns or boxes and returns a fitness value
+        """
+        fitness = 0
+
+        for entry in grid:
+            fitness += len(set(entry))
+
+        return fitness
+
+    
+    def get_columns(self, grid):
+        """
+        A function that creates and returns a list
+        of the columns in a grid
+        """
+        col_list = []
+        for col_num in range(9):
+            this_col = []
+            for row_num in range(9):
+                this_col.append(grid[row_num][col_num])
+            col_list.append(this_col)
+        
+        return col_list
+
+
+    def get_boxes(self, grid):
+       """
+       A function that creates and returns a list
+       of the boxes in a grid
+       """
+       box_list = []
+       box_row = []
+       for box_row_num in range(3): # 3 rows - 0,1,2
+           box_row.clear()
+           box_row.append(grid[box_row_num * 3])
+           box_row.append(grid[box_row_num * 3 + 1])
+           box_row.append(grid[box_row_num * 3 + 2])
+           box_list += self.get_box_row(box_row)
+       return box_list
+
+    def get_box_row(self, box_row):
+        """
+        A function that takes a box row and returns 
+        the three boxes as a list of 3 box lists
+        """
+
+        box_row_list = []
+        for box_col in range(3):
+            box_row_list.append(box_row[0][box_col * 3: (box_col * 3) + 3] +
+                            box_row[1][box_col * 3: (box_col * 3) + 3] +
+                            box_row[2][box_col * 3: (box_col * 3) + 3])
+
+
+        return box_row_list
+
