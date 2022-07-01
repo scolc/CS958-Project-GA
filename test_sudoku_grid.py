@@ -11,7 +11,6 @@ class TestMain(unittest.TestCase):
         """
         A function to build the grid used in tests
         """
-        
         grid = sudoku_grid.SudokuGrid()
 
         # lists for cells
@@ -71,46 +70,29 @@ class TestMain(unittest.TestCase):
         A function to test the fitness function
         of the SudokuGrid class
         """
+        print("\nTesting fitness")
+
         grid = self.build_test_grid()
-        #test_lists = []
-        #list1 = [1,2,3,4,5,6,7,8,9] # 9 out of  9
-        #test_lists.append(list1)
-        #test_lists.append(list1)
-        #list2 = [1] * 9             # 1 out of 9
-        #test_lists.append(list2)
-        #list3 = [] * 9              # 0 out of 9
-        #test_lists.append(list3)
-        #list4 = [1,1,2,2,2,3,3,3,3] # 3 out of 9
-        #test_lists.append(list4)
-
-        #for list in test_lists:
-        #    row = []
-        #    for entry in list:
-        #        cell = []
-        #        cell.append(entry)
-        #        row.append(cell)
-        #    grid.ga_p1_pos_cells.append(row)
-
-        
         params = [0] * 9
         grid.phase = 1
-        # row[0] is list1
+
+        # row[0] is list1, 9 out of  9 correct
         grid.current_row = 0
         self.assertEqual(grid.fitness(params), 100)
 
-        # row[1] is list1
+        # row[1] is list1, testing changing row number
         grid.current_row = 1
         self.assertEqual(grid.fitness(params), 100)
 
-        # row[2] is list2
+        # row[2] is list2, 1 out of 9 correct
         grid.current_row = 2
         self.assertEqual(grid.fitness(params), 1/9 * 100)
         
-        # row[3] is list3
+        # row[3] is list3, 0 out of 9 correct
         grid.current_row = 3
         self.assertEqual(grid.fitness(params), 0)
 
-        # row[4] is list4
+        # row[4] is list4, 3 out of 9 correct
         grid.current_row = 4
         self.assertEqual(grid.fitness(params), 3/9 * 100)
     
@@ -120,6 +102,8 @@ class TestMain(unittest.TestCase):
         A function to test the __call__ function
         of the SudokuGrid class
         """
+        print("\nTesting call")
+
         grid = self.build_test_grid()
         
         # phase 1, find rows
@@ -169,6 +153,8 @@ class TestMain(unittest.TestCase):
         A function to test the fitness_columns function
         of the SudokuGrid class
         """
+        print("\nTesting fitness_columns")
+
 
         grid = sudoku_grid.SudokuGrid()
         rows1 = []
@@ -195,6 +181,8 @@ class TestMain(unittest.TestCase):
         A function to test the fitness_boxes function
         of the SudokuGrid class
         """
+        print("\nTesting fitness_box_row")
+
 
         grid = sudoku_grid.SudokuGrid()
         box_row1 = ([[8, 9, 1, 2, 3, 5, 7, 4, 6],[6, 7, 4, 9, 8, 1, 5, 3, 2],[3, 5, 2, 7, 4, 6, 1, 8, 9]])
@@ -212,6 +200,8 @@ class TestMain(unittest.TestCase):
         A function to test the calculate_fitness function
         of the SudokuGrid class
         """
+        print("\nTesting calculate_fitness")
+
         grid = sudoku_grid.SudokuGrid()
         list1 = ([[8, 9, 1, 2, 3, 5, 7, 4, 6]]) # single row
         list2 = ([[9, 4, 5, 3, 6, 2, 8, 7, 1],[1, 6, 3, 8, 5, 7, 2, 9, 4],[2, 8, 7, 1, 9, 4, 6, 5, 3]]) # a box row
@@ -226,6 +216,8 @@ class TestMain(unittest.TestCase):
         A function to test the get_columns function
         of the SudokuGrid class
         """
+        print("\nTesting get_columns")
+
         grid = sudoku_grid.SudokuGrid()
         rows1 = []
         rows1.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
@@ -257,6 +249,8 @@ class TestMain(unittest.TestCase):
         A function to test the get_box_row function
         of the SudokuGrid class
         """
+        print("\nTesting get_box_row")
+
         grid = sudoku_grid.SudokuGrid()
         
         box_row1 = ([[8, 9, 1, 2, 3, 5, 7, 4, 6],[6, 7, 4, 9, 8, 1, 5, 3, 2],[3, 5, 2, 7, 4, 6, 1, 8, 9]])
@@ -269,6 +263,8 @@ class TestMain(unittest.TestCase):
         A function to test the get_boxes function
         of the SudokuGrid class
         """
+        print("\nTesting get_boxes")
+
         grid = sudoku_grid.SudokuGrid()
         rows = []
 
@@ -287,6 +283,43 @@ class TestMain(unittest.TestCase):
                     [5, 3, 6, 7, 2, 9, 4, 1, 8],[4, 2, 8, 5, 1, 3, 6, 7, 9],[9, 1, 7, 4, 6, 8, 3, 2, 5]])
 
         self.assertEqual(grid.get_boxes(rows), box_list)
+
+    def test_check_solution(self):
+        """
+        A function to test the check_solution function
+        of the sudoku_grid class
+        """
+        print("\nTesting check_solution")
+        
+        grid = sudoku_grid.SudokuGrid()
+
+        # Good Grid
+        rows = []
+        rows.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
+        rows.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
+        rows.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
+        rows.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
+        rows.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
+        rows.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
+        rows.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
+        rows.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
+        rows.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
+
+        grid.current_solution.clear()
+        grid.current_solution = rows
+
+        self.assertTrue(grid.check_solution())
+
+        # Bad Grid
+        rows = [[0]*9] * 9
+
+        grid.current_solution.clear()
+        grid.current_solution = rows
+
+        self.assertFalse(grid.check_solution())
+
+
+
 
 if __name__ == "__main__":
     unittest.main()

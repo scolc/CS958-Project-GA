@@ -1,5 +1,6 @@
 import main
 import unittest
+from tkinter import *
 
 class TestMain(unittest.TestCase):
     """
@@ -57,6 +58,27 @@ class TestMain(unittest.TestCase):
         of the GUI class returns a list that has 9 entries"""
         gui = main.GUI()
         self.assertEqual(len(gui.init_grid_ui()), 9)
+
+    def test_get_user_rows(self):
+        """
+        A function to test the get_user_rows function
+        of the GUI class
+        """
+
+        gui = main.GUI()
+        test_grid = [[0]*9] * 9
+        user_grid = gui.get_user_rows()
+        
+        self.assertEqual(user_grid, test_grid)
+
+        
+        test_grid[0] = [1, 0, 0, 0, 0, 0, 0, 0, 0]
+        gui.grid_ui[0][0].delete(0, END)
+        gui.grid_ui[0][0].insert(0, "1")
+        user_grid = gui.get_user_rows()
+
+        self.assertEqual(user_grid, test_grid)
+        
 
 if __name__ == "__main__":
     unittest.main()
