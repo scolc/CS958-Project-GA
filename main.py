@@ -316,7 +316,8 @@ class GUI():
         Checks user entry and begins the process for solving the grid
         """
         # Build grid class from user entry
-        rows = self.get_user_rows()
+        self.grid.user_rows.clear()
+        self.grid.user_rows = self.get_user_rows()
 
         ## Hard coded grid for testing
         #rows = []
@@ -330,21 +331,21 @@ class GUI():
         #rows.append([2, 0, 5, 1, 0, 0, 0, 0, 0])
         #rows.append([0, 0, 0, 0, 0, 0, 0, 9, 4])
         #rows.append([0, 0, 3, 0, 7, 4, 0, 0, 0])
+#
+        #self.grid.user_rows = rows
+        
+        # Check user entry follows sudoku rules for duplicates
+        if self.grid.check_user_grid():
+            # Confirm user choice to continue
+            #if user_confirm_continue():
+            # Run GA
+            self.running_ga = True
+            self.ga_thread = threading.Thread(target=self.run_ga)
+            self.ga_thread.daemon = True
+            self.ga_thread.start()
 
-        self.grid.user_rows.clear()
-        self.grid.user_rows = rows
-        #print(self.grid)
-        
-        # Check user entry follows sudoku rules
-        
-        # Confirm user choice to continue
-
-        
-        # Run GA
-        self.running_ga = True
-        self.ga_thread = threading.Thread(target=self.run_ga)
-        self.ga_thread.daemon = True
-        self.ga_thread.start()
+        else: # Grid isn't valid, show message box to user
+            pass
 
     def get_user_rows(self):
         """

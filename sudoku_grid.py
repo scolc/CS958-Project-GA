@@ -160,7 +160,7 @@ class SudokuGrid:
         A function to check if the current solution has
         been completed and returns True or False
         """
-        box_grid = self.get_boxes(self.current_solution)
+        boxes = self.get_boxes(self.current_solution)
         fitness = 0
 
         # Check all cells are filled
@@ -171,8 +171,50 @@ class SudokuGrid:
         # Check solution is valid
         fitness += self.calculate_fitness(self.current_solution)
         fitness += self.fitness_columns(self.current_solution)
-        fitness += self.calculate_fitness(box_grid)
+        fitness += self.calculate_fitness(boxes)
         
         return fitness == 3 * 81 # 81 max for each fitness 
 
+    def check_user_grid(self):
+        """
+        A function to check that the user grid is valid.
+        """
+        # Setup lists for columns and boxes
+        columns = self.get_columns(self.user_rows)
+        boxes = self.get_boxes(self.user_rows)
 
+        grids = []
+        grids.append(self.user_rows)
+        grids.append(columns)
+        grids.append(boxes)
+        
+        # Check each row, column and box has no duplicates of digits 1 - 9
+        valid = True
+
+        for grid in grids:
+            for row in grid:
+                duplicates = self.check_duplicates(row)
+                if duplicates:
+                    valid = False
+                    break
+            if not valid:
+                break
+
+        return valid
+    
+    def check_duplicates(self, row):
+        """
+        A function to check a given list has duplicates.
+        Returns True if duplicates found, False otherwise.
+        """
+        # Create a list with '0's removed
+        new_row = []
+        for entry in row:
+            if entry > 0:
+                new_row.append(entry)
+        
+        return len(set(new_row)) < len(new_row)
+
+
+
+        
