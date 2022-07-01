@@ -170,9 +170,7 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(grid.fitness_columns(rows1), 81)
 
-        rows2 = []
-        for i in range(9):
-            rows2.append([1] * 9)
+        rows2 = [[1] * 9] * 9
         self.assertEqual(grid.fitness_columns(rows2), 9)
 
 
@@ -220,26 +218,17 @@ class TestMain(unittest.TestCase):
 
         grid = sudoku_grid.SudokuGrid()
         rows1 = []
-        rows1.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
-        rows1.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
-        rows1.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
-        rows1.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
-        rows1.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
-        rows1.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
-        rows1.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
-        rows1.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
-        rows1.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
+        rows1.append([1] * 9)
+        rows1.append([2] * 9)
+        rows1.append([3] * 9)
+        rows1.append([4] * 9)
+        rows1.append([5] * 9)
+        rows1.append([6] * 9)
+        rows1.append([7] * 9)
+        rows1.append([8] * 9)
+        rows1.append([9] * 9)
 
-        rows2 = []
-        rows2.append([8, 6, 3, 9, 1, 2, 5, 7, 4])
-        rows2.append([9, 7, 5, 4, 6, 8, 3, 2, 1])
-        rows2.append([1, 4, 2, 5, 3, 7, 6, 9, 8])
-        rows2.append([2, 9, 7, 3, 8, 1, 4, 5, 6])
-        rows2.append([3, 8, 4, 6, 5, 9, 2, 1, 7])
-        rows2.append([5, 1, 6, 2, 7, 4, 8, 3, 9])
-        rows2.append([7, 5, 1, 8, 2, 6, 9, 4, 3])
-        rows2.append([4, 3, 8, 7, 9, 5, 1, 6, 2])
-        rows2.append([6, 2, 9, 1, 4, 3, 7, 8, 5])
+        rows2 = [[1, 2, 3, 4, 5, 6, 7, 8, 9]] * 9
 
         self.assertEqual(grid.get_columns(rows1), rows2)
 
@@ -278,9 +267,16 @@ class TestMain(unittest.TestCase):
         rows.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
         rows.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
 
-        box_list = ([[8, 9, 1, 6, 7, 4, 3, 5, 2],[2, 3, 5, 9, 8, 1, 7, 4, 6],[7, 4, 6, 5, 3, 2, 1, 8, 9],
-                    [9, 4, 5, 1, 6, 3, 2, 8, 7],[3, 6, 2, 8, 5, 7, 1, 9, 4],[8, 7, 1, 2, 9, 4, 6, 5, 3],
-                    [5, 3, 6, 7, 2, 9, 4, 1, 8],[4, 2, 8, 5, 1, 3, 6, 7, 9],[9, 1, 7, 4, 6, 8, 3, 2, 5]])
+        box_list = []
+        box_list.append([8, 9, 1, 6, 7, 4, 3, 5, 2])
+        box_list.append([2, 3, 5, 9, 8, 1, 7, 4, 6])
+        box_list.append([7, 4, 6, 5, 3, 2, 1, 8, 9])
+        box_list.append([9, 4, 5, 1, 6, 3, 2, 8, 7])
+        box_list.append([3, 6, 2, 8, 5, 7, 1, 9, 4])
+        box_list.append([8, 7, 1, 2, 9, 4, 6, 5, 3])
+        box_list.append([5, 3, 6, 7, 2, 9, 4, 1, 8])
+        box_list.append([4, 2, 8, 5, 1, 3, 6, 7, 9])
+        box_list.append([9, 1, 7, 4, 6, 8, 3, 2, 5])
 
         self.assertEqual(grid.get_boxes(rows), box_list)
 
@@ -318,6 +314,91 @@ class TestMain(unittest.TestCase):
 
         self.assertFalse(grid.check_solution())
 
+    def test_check_user_grid(self):
+        """
+        A function to test the check_user_grid function
+        of the sudoku_grid class.
+        """
+        print("\nTesting check_user_grid")
+        
+        grid = sudoku_grid.SudokuGrid()
+
+        # Good grids
+
+        # Empty
+        grid.user_rows.clear()
+        grid.user_rows = [[0] * 9] * 9
+
+        self.assertTrue(grid.check_user_grid())
+
+        # Full grid
+        grid.user_rows.clear()
+
+        grid.user_rows.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
+        grid.user_rows.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
+        grid.user_rows.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
+        grid.user_rows.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
+        grid.user_rows.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
+        grid.user_rows.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
+        grid.user_rows.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
+        grid.user_rows.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
+        grid.user_rows.append([4, 1, 8, 6, 7, 9, 3, 2, 5])
+
+        self.assertTrue(grid.check_user_grid())
+
+        # Bad grids
+        
+        # All 1s
+        grid.user_rows.clear()
+        grid.user_rows = [[1] * 9] * 9
+
+        self.assertFalse(grid.check_user_grid())
+
+        # Single duplicate
+        grid.user_rows.clear()
+
+        grid.user_rows.append([8, 9, 1, 2, 3, 5, 7, 4, 6])
+        grid.user_rows.append([6, 7, 4, 9, 8, 1, 5, 3, 2])
+        grid.user_rows.append([3, 5, 2, 7, 4, 6, 1, 8, 9])
+        grid.user_rows.append([9, 4, 5, 3, 6, 2, 8, 7, 1])
+        grid.user_rows.append([1, 6, 3, 8, 5, 7, 2, 9, 4])
+        grid.user_rows.append([2, 8, 7, 1, 9, 4, 6, 5, 3])
+        grid.user_rows.append([5, 3, 6, 4, 2, 8, 9, 1, 7])
+        grid.user_rows.append([7, 2, 9, 5, 1, 3, 4, 6, 8])
+        grid.user_rows.append([4, 1, 8, 6, 7, 9, 3, 2, 1]) # Duplicate 1 here
+
+        self.assertFalse(grid.check_user_grid())
+
+    def test_check_duplicates(self):
+        """
+        A function to test the check_duplicates function
+        of the sudoku_grid class.
+        """
+        print("\nTesting check_duplicates")
+
+        grid = sudoku_grid.SudokuGrid()
+
+        # Good Rows
+        row1 = [0] * 9
+        row2 = [0] * 8 + [1]
+        row3 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        self.assertFalse(grid.check_duplicates(row1))
+        self.assertFalse(grid.check_duplicates(row2))
+        self.assertFalse(grid.check_duplicates(row3))
+
+
+        # Bad Rows
+        row4 = [1] * 9
+        row5 = [0] * 7 + [1] * 2
+        row6 = [1, 1, 3, 4, 5, 6, 7, 8, 9]
+
+        self.assertTrue(grid.check_duplicates(row4))
+        self.assertTrue(grid.check_duplicates(row5))
+        self.assertTrue(grid.check_duplicates(row6))
+
+
+        
 
 
 
