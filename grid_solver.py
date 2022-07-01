@@ -1,27 +1,31 @@
-from typing import List
+from typing import Callable
 import ga_solver as ga
 import sudoku_grid as sg
+import time
 
 class GridSolver():
     """
     A class to handle the solve operation for the grid.
-    Requires s the genetic algorithm class.
+    Requires the genetic algorithm class and a passed grid object.
     """
 
-    def __init__(self, grid : sg.SudokuGrid):
+    def __init__(self, grid : sg.SudokuGrid, output : Callable):
         self.grid = grid
-
+        self.solved = False
+        self.thread_running = True # Changed to False when a stop is needed
+        self.output = output # Output function from GUI to allow display of feedback
+ 
     def run(self):
         """
         A function that handles running the genetic algorithm on the grid
         """
-        # Check the grid to see if any cells can be solved easily
-        
         running = True # Becomes False when the ga should stop
         running_attempts = 0 # Counts the number of times the process has been repeated
-        solved = False # Becomes True when the solution is found
-        
-        # Inititialise the current solution state unlinked from user entry
+        self.solved = False # Becomes True when the solution is found
+        start_time = time.time()
+
+        # Inititialise the current solution state from user entry
+        self.grid.current_solution.clear()
         for entry in self.grid.user_rows:
             this_row = []
             for cell in entry:
@@ -32,61 +36,98 @@ class GridSolver():
             solvable = self.setup_phase_1()
             can_p2 = False
             can_p3 = False
-
+            
             if solvable:
                 running_attempts += 1
-                print("Attempt = " + str(running_attempts))
+                #print("Attempt = " + str(running_attempts))
+                self.output(f"Attempt {running_attempts} ")
 
-                # Phase 1, find possible rows
-                can_p2 = self.run_phase_1()
-                print("phase 1 complete")
-                
+                # Phase 1, find possible rows if not already solved in setup
+                if self.thread_running and not self.solved:
+                    #self.output("phase 1 - ")
+                    can_p2 = self.run_phase_1()
+                    #print("phase 1 complete")
+                    
                 # Phase 2, find possible box rows
-                if can_p2:
-                    can_p3 = self.run_phase_2()
-                    print("phase 2 complete")
-                else:
-                    #running = False
-                    solved = False
-                
-                
-                # Phase 3, try to solve the grid
-                if can_p3:
-                    solved = self.run_phase_3()
-                    print("phase 3 complete")
-                else:
-                    #running = False
-                    solved = False
-                
-                
-                # Solved condition
-                if solved:
-                    running = False
-                else:
-                    updated = False
-                    # Try to update the solution depending on phases complete
-                    if can_p3: # Phase 2 completed ok
-                        self.check_boxes()
-                        updated = self.check_rows()
-                    elif can_p2: # Only phase 1 completed ok
-                        updated = self.check_rows()
-                    # Run certain number of attempts, only keep going if still updating
-                    
-                    if running_attempts >= 5 and not updated:
-                        running = False
-                    
-                solved = True
+                if self.thread_running and not self.solved:
+                    if can_p2:
+                        #self.output("_/ phase 2 - ")
+                        self.output(" .")
+                        can_p3 = self.run_phase_2()
+                        #print("phase 2 complete")
+                    else:
+                        self.output(" X")
 
+                # Phase 3, try to solve the grid
+                if self.thread_running:
+                    if can_p3:
+                        #self.output("_/ phase 3 - ")
+                        self.output(" .")
+                        self.solved = self.run_phase_3()
+                        #print("phase 3 complete")
+                        if self.thread_running:
+                            if self.solved:
+                                #self.output("_/")
+                                self.output(" .")
+                            else:
+                                self.output(" X")
+                    else:
+                        if can_p2:
+                            self.output(" X")
+                
+                
+                if self.thread_running:
+                    self.output("\n")
+
+                    # Solved condition
+                    if self.solved:
+                        running = False
+                        #print("solver solved")
+                        message = f"Solution found after {running_attempts} attempt"
+                        if running_attempts > 1:
+                            message += "s"
+                        end_time = time.time()
+                        message += f"!\nSolver ran for {self.convert_time(end_time - start_time)}.\n\n"
+                        self.output(message)
+                    else:
+                        updated = False
+                        # Try to update the solution depending on phases complete
+                        if can_p3: # Phase 2 completed ok
+                            self.check_boxes()
+                            updated = self.check_rows()
+                        elif can_p2: # Only phase 1 completed ok
+                            updated = self.check_rows()
+
+                        # Run certain number of attempts, only keep going if still updating
+                        if updated:
+                            self.output("Found part of the solution, starting new attempt.\n\n")
+                            end_time = time.time()
+                            self.output(f"Current time: {self.convert_time(end_time - start_time)}.\n\n")
+                        elif running_attempts >= 5:
+                            running = False
+                            end_time = time.time()
+                            message = f"Unable to find the solution after {running_attempts} attempts.\n"
+                            message += f"Solver ran for {self.convert_time(end_time - start_time)}.\n\n"
+                            self.output(message)
+                        else:
+                            self.output("Didn't find anything this time, starting new attempt.\n\n")
+                else: # Thread is stopping
+                    running = False
+                    self.output("\nStopped solving grid.\n\n")
+                    
             else: 
                 running = False
+                end_time = time.time()
+                self.output(f"Unable to find the solution. Got stuck.\nClick 'START' to try again.\nSolver ran for {self.convert_time(end_time - start_time)}.\n\n")
 
-        return solved
+        #return self.solved
 
     
     def check_boxes(self):
         """
         A function to check if box rows returned during phase 2
-        shared a common row indicating a solved row
+        shared a common row indicating a solved row and updates
+        the lists used for checking rows.
         """
         for box_row_index in range(3):
             this_box_row = self.grid.ga_p3_pos_box_rows[box_row_index]
@@ -159,48 +200,6 @@ class GridSolver():
             
         return grid_updated
 
-
-
-    def run_phase_1(self):
-        """
-        A function to handle running the genetic algorithm to find possible rows
-        """
-        self.grid.phase = 1
-        #setup_complete = self.setup_phase_1()
-        #if setup_complete:
-        self.grid.ga_p2_pos_rows.clear()
-        
-        # Run each row through ga, 9 rows
-        for row_num in range(len(self.grid.ga_p1_pos_cells)):
-
-            self.grid.current_row = row_num
-
-            cell_values = self.grid.ga_p1_pos_cells[row_num]
-            possible_rows = self.run_ga_solver(cell_values)
-            
-            # Convert possible_row indices to their corresponding values
-            if possible_rows:
-                converted_rows = []
-                for entry in possible_rows:
-                    temp_row = []
-                    current_row = self.grid.ga_p1_pos_cells[row_num]
-                    entry_index = 0
-                    for cell_vals in current_row:
-                        temp_row.append(cell_vals[entry[entry_index]])
-                        entry_index += 1
-                    converted_rows.append(temp_row)
-                # Check converted_rows contains entries
-                if converted_rows:
-                    self.grid.ga_p2_pos_rows.append(converted_rows)
-                else: # converted_rows is empty so error occurred
-                    return False
-            else: # Possible rows is empty so error occurred
-                return False
-        
-        return True
-        #else:
-        #    return False
-
     def setup_phase_1(self):
         """
         A function to check the grid for possible cell values
@@ -242,24 +241,69 @@ class GridSolver():
                     else: # cell_vals is empty so error occurred
                         return False
                 # Check that temp_row contains a full row of 9 entries
-                if len(temp_row) == 9:
-                    # Check if temp_row has new solved entries for cells in this row
-                    for index in range(len(temp_row)):
-                        if len(temp_row[index]) == 1 and this_row[index] == 0:
-                            # New solved cell, update current solution and restart
-                            this_row[index] = temp_row[index][0]
-                            updating = True
-                    
-                    if updating:
-                        break
-                    else: # solution not updated so set phase 1 possible cells
-                        self.grid.ga_p1_pos_cells[row_num].clear()
-                        self.grid.ga_p1_pos_cells[row_num] = temp_row
+                #if len(temp_row) == 9:
+                # Check if temp_row has new solved entries for cells in this row
+                for index in range(9):#len(temp_row)):
+                    if len(temp_row[index]) == 1 and this_row[index] == 0:
+                        # New solved cell, update current solution and restart
+                        this_row[index] = temp_row[index][0]
+                        updating = True
+                
+                if updating:
+                    break
+                else: # solution not updated so set phase 1 possible cells
+                    self.grid.ga_p1_pos_cells[row_num].clear()
+                    self.grid.ga_p1_pos_cells[row_num] = temp_row
                         
-                else: # temp_row is too short so error occurred
-                    return False
-
+                #else: # temp_row is too short so error occurred
+                #    print("length issue")
+                #    return False
+        
+        # Check if the solution has been found
+        
+        self.solved = self.grid.check_solution()
         return True
+
+    def run_phase_1(self):
+        """
+        A function to handle running the genetic algorithm to find possible rows
+        """
+        self.grid.phase = 1
+        #setup_complete = self.setup_phase_1()
+        #if setup_complete:
+        self.grid.ga_p2_pos_rows.clear()
+        
+        # Run each row through ga, 9 rows
+        for row_num in range(len(self.grid.ga_p1_pos_cells)):
+
+            self.grid.current_row = row_num
+
+            cell_values = self.grid.ga_p1_pos_cells[row_num]
+            possible_rows = self.run_ga_solver(cell_values)
+            
+            # Convert possible_row indices to their corresponding values
+            if possible_rows:
+                #print(f"Row {row_num + 1} = {len(possible_rows)}")
+                converted_rows = []
+                for entry in possible_rows:
+                    temp_row = []
+                    current_row = self.grid.ga_p1_pos_cells[row_num]
+                    entry_index = 0
+                    for cell_vals in current_row:
+                        temp_row.append(cell_vals[entry[entry_index]])
+                        entry_index += 1
+                    converted_rows.append(temp_row)
+                # Check converted_rows contains entries
+                #if converted_rows:
+                self.grid.ga_p2_pos_rows.append(converted_rows)
+                #else: # converted_rows is empty so error occurred
+                #    return False
+            else: # Possible rows is empty so error occurred
+                return False
+        
+        return True
+        #else:
+        #    return False
 
     def run_phase_2(self):
         """
@@ -282,6 +326,7 @@ class GridSolver():
 
             # Convert possible box indices into their corresponding lists
             if possible_box_rows:
+                #print(f"Box Row {box_row + 1} = {len(possible_box_rows)}")
                 converted_boxes = []
                 for entry in possible_box_rows:
                     pos_box_row = []
@@ -289,12 +334,12 @@ class GridSolver():
                         pos_box_row.append(self.grid.ga_p2_pos_rows[(box_row * 3) + index][entry[index]])
                     converted_boxes.append(pos_box_row)
                 
-                if converted_boxes:
-                    self.grid.ga_p3_pos_box_rows.append(converted_boxes)
+                #if converted_boxes:
+                self.grid.ga_p3_pos_box_rows.append(converted_boxes)
 
 
-                else: # converted_boxes is empty so error occurred
-                    return False
+                #else: # converted_boxes is empty so error occurred
+                #    return False
 
             else: # possible_box_rows is empty, no box rows returned
                 return False
@@ -328,7 +373,7 @@ class GridSolver():
             # Update current solution
             self.grid.current_solution.clear()
             self.grid.current_solution = temp_grid
-            print(self.grid.current_solution)
+            #print(self.grid.current_solution)
 
 
             solved = True
@@ -351,11 +396,42 @@ class GridSolver():
         solver = ga.GaSolver(f=self.grid, limits= limit_list, mutation = 0.2, deletion = 0.2)
 
         # Produce list of possible row indices, multiple attempts to increase unique results found
-        for attempt in range(10):
-            solver.solve(n_iterations=30, n_initial_points=200)
-            for point in solver.population:
-                if point.fitness == 100:
-                    if results.count(point.parameters) == 0: # Only add if unique
-                        results.append(point.parameters)
+        attempts = [50, 10, 5]
+        points = [50, 200, 400]
+        for _ in range(attempts[self.grid.phase - 1]):
+            if self.thread_running:
+                #if self.grid.phase == 3:
+                #    points = 300
+                #else:
+                #    points = 150
+
+                solver.solve(n_iterations=30, n_initial_points = points[self.grid.phase - 1])
+                for point in solver.population:
+                    if point.fitness == 100:
+                        if results.count(point.parameters) == 0: # Only add if unique
+                            results.append(point.parameters)
 
         return results
+
+    def convert_time(self, run_time : int):
+        """
+        A function to convert a run time in seconds into
+        minutes and seconds and returns it as a string.
+        """
+        minutes = int(run_time / 60)
+        seconds = int(run_time % 60)
+        result = ""
+
+        if minutes > 0:
+            result += f"{minutes} minute"
+            if minutes > 1:
+                result += "s"
+            result += " "
+
+        if seconds < 10:
+            result += "0"
+
+        result += f"{seconds} second"
+        if not seconds == 1:
+            result += "s"
+        return result

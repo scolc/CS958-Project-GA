@@ -89,17 +89,6 @@ class SudokuGrid:
         
         return self.calculate_fitness(col_list) # max 81
     
-    # deprecated by fitness_box_row
-    # def fitness_boxes(self, grid):
-    #    """
-    #    A function that returns total fitness for each 3 x 3 box in a grid
-    #    """
-    #    
-    #    #turn grid into box list
-    #    box_list = self.get_boxes(grid)
-    #    
-    #    return self.calculate_fitness(box_list) # max 81
-
     def fitness_box_row(self, box_row):
         """
         A function that takes a list representing a box row
@@ -165,4 +154,25 @@ class SudokuGrid:
 
 
         return box_row_list
+
+    def check_solution(self):
+        """
+        A function to check if the current solution has
+        been completed and returns True or False
+        """
+        box_grid = self.get_boxes(self.current_solution)
+        fitness = 0
+
+        # Check all cells are filled
+        for row in self.current_solution:
+            if row.count(0) > 0:
+                return False
+
+        # Check solution is valid
+        fitness += self.calculate_fitness(self.current_solution)
+        fitness += self.fitness_columns(self.current_solution)
+        fitness += self.calculate_fitness(box_grid)
+        
+        return fitness == 3 * 81 # 81 max for each fitness 
+
 
