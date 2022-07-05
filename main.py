@@ -1,11 +1,11 @@
 import random
 import threading
 from tkinter import *
-from tkinter import messagebox
 from tkinter.scrolledtext import ScrolledText
 
 import grid_solver as gsol
 import sudoku_grid as sg
+import sudoku_generator as gen
 
 
 class GUI():
@@ -23,7 +23,7 @@ class GUI():
         self.y_pad = int(self.tile_size / 2)
         
         self.max_window_columns = 14 # Space for 9 grid columns, a button and padding in between
-        self.max_window_rows = 18 # Space for 9 grid rows, other elements and padding
+        self.max_window_rows = 20 # Space for 9 grid rows, other elements and padding
         
         self.window_width = self.max_window_columns * self.tile_size
         self.window_height = self.max_window_rows * self.tile_size
@@ -75,6 +75,9 @@ class GUI():
                                 highlightthickness = 0)
         self.grid_size = 9 * self.tile_size
         self.grid_ui = self.init_grid_ui()
+
+        self.grid_x = self.x_pad
+        self.grid_y = self.title_box_height + self.y_pad * 2
         
         
         # Operation Buttons
@@ -132,6 +135,76 @@ class GUI():
                                 font = self.btn_font,
                                 command = self.reset_grid)
 
+        # Number Buttons
+        self.num_1_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_2_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_3_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_4_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_5_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_6_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_7_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_8_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+        self.num_9_frame = Frame(self.ui,
+                                bg = self.col_bg_en_norm,
+                                highlightthickness = 1,
+                                highlightbackground = self.col_fg_en_norm)
+
+        self.num_1_btn = Button(self.num_1_frame, text = "1",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(1))
+        self.num_2_btn = Button(self.num_2_frame, text = "2",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(2))
+        self.num_3_btn = Button(self.num_3_frame, text = "3",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(3))
+        self.num_4_btn = Button(self.num_4_frame, text = "4",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(4))
+        self.num_5_btn = Button(self.num_5_frame, text = "5",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(5))
+        self.num_6_btn = Button(self.num_6_frame, text = "6",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(6))
+        self.num_7_btn = Button(self.num_7_frame, text = "7",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(7))
+        self.num_8_btn = Button(self.num_8_frame, text = "8",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(8))
+        self.num_9_btn = Button(self.num_9_frame, text = "9",
+                                font = self.btn_font,
+                                command = lambda : self.num_button_press(9))
+        
+        self.gen_btn = Button(self.ui, text = "Generate Grid",
+                                font = self.btn_font,
+                                command = self.generate_user_grid)
+
         # Output Box
         self.output_frame = Frame(self.ui,
                                 bg = self.col_bg_dis_norm,
@@ -140,7 +213,8 @@ class GUI():
         # Dynamic height between element above and window bottom border
         self.output_height = self.window_height - (self.title_box_height +
                                                     self.grid_size +
-                                                    4 * self.y_pad)
+                                                    self.tile_size +
+                                                    5 * self.y_pad)
         self.output_font = "Calibri " + str(int(self.tile_size / 3))
         self.output_box = ScrolledText(self.output_frame,
                                         fg = self.col_out_fg,
@@ -159,13 +233,14 @@ class GUI():
         self.m_box_width = self.tile_size * 8
         self.m_box_height = self.tile_size * 5
         self.m_box_font = "Calibri " + str(int(self.tile_size / 3))
-        self.m_box_frame_pad = 2
+        self.m_box_frame_pad = 3
 
 
         # Other Variables
         self.running_ga = False
         self.ga_thread = threading.Thread()
         self.grid = sg.SudokuGrid()
+        self.generator = gen.SudokuGenerator()
 
 
     # Initialisation Functions
@@ -175,7 +250,7 @@ class GUI():
         A function to create the grid ui element.
         """
         new_grid = []
-        for entry in range(9):
+        for _ in range(9):
             new_grid.append(self.init_row_ui())
         
         return new_grid
@@ -185,9 +260,8 @@ class GUI():
         A function to create a new row of entry boxes for the grid ui.
         """
         new_row = []
-        for entry in range(9):
+        for _ in range(9):
             valid_entry = (self.ui.register(self.validate_entry), '%P')
-            #cell = Entry(self.ui,
             cell = Entry(self.grid_canvas,
                         borderwidth = 2,
                         justify="center",
@@ -201,7 +275,7 @@ class GUI():
                         border = 0,
                         highlightthickness = 0)
             new_row.append(cell)
-        
+            
         return new_row
 
     def validate_entry(self, entry):
@@ -310,6 +384,7 @@ class GUI():
         """
         A function to display the buttons for the user interaction.
         """
+        # Operation Buttons
         # Create a button frame list to iterate over
         frame_list = []
         frame_list.append(self.solve_btn_frame)
@@ -332,39 +407,81 @@ class GUI():
         x_pos = self.grid_size + 2 * self.x_pad - self.frame_pad
         y_pos = self.title_box_height + 2 * self.y_pad - self.frame_pad
         
-        if len(frame_list) > 1:
+        if len(frame_list) > 1 and len(btn_list) > 1:
             empty_y_space = self.grid_size - len(frame_list) * self.btn_height
             y_space = empty_y_space / (len(frame_list) - 1) + self.btn_height
         else: # In case there is only 1 button created in error
             y_space = 0
         
-        ## Place frames
-        #for frame in frame_list:
-        #    frame.place(x = x_pos,
-        #                y = y_pos,
-        #                width = self.btn_width + self.frame_pad * 2,
-        #                height = self.btn_height + self.frame_pad * 2)
-        #    y_pos += y_space
-#
-        ## Place buttons
-        #for button in btn_list:
-        #    button.place(x = self.frame_pad,
-        #                y = self.frame_pad,
-        #                width = self.btn_width,
-        #                height = self.btn_height)
-        #    y_pos += y_space
+        if len(frame_list) == len(btn_list):
+            for i in range(len(frame_list)):
+                frame = frame_list[i]
+                frame.place(x = x_pos,
+                            y = y_pos,
+                            width = self.btn_width + self.frame_pad * 2,
+                            height = self.btn_height + self.frame_pad * 2)
+                btn_list[i].place(x = self.frame_pad - frame["highlightthickness"],
+                                    y = self.frame_pad - frame["highlightthickness"],
+                                    width = self.btn_width,
+                                    height = self.btn_height)
+                y_pos += y_space
 
-        for i in range(len(frame_list)):
-            frame = frame_list[i]
-            frame.place(x = x_pos,
-                        y = y_pos,
-                        width = self.btn_width + self.frame_pad * 2,
-                        height = self.btn_height + self.frame_pad * 2)
-            btn_list[i].place(x = self.frame_pad - frame["highlightthickness"],
-                                y = self.frame_pad - frame["highlightthickness"],
-                                width = self.btn_width,
-                                height = self.btn_height)
-            y_pos += y_space
+        # Number buttons
+        # Frame list
+        num_frame_list = []
+        num_frame_list.append(self.num_1_frame)
+        num_frame_list.append(self.num_2_frame)
+        num_frame_list.append(self.num_3_frame)
+        num_frame_list.append(self.num_4_frame)
+        num_frame_list.append(self.num_5_frame)
+        num_frame_list.append(self.num_6_frame)
+        num_frame_list.append(self.num_7_frame)
+        num_frame_list.append(self.num_8_frame)
+        num_frame_list.append(self.num_9_frame)
+
+        # Button list
+        num_btn_list = []
+        num_btn_list.append(self.num_1_btn)
+        num_btn_list.append(self.num_2_btn)
+        num_btn_list.append(self.num_3_btn)
+        num_btn_list.append(self.num_4_btn)
+        num_btn_list.append(self.num_5_btn)
+        num_btn_list.append(self.num_6_btn)
+        num_btn_list.append(self.num_7_btn)
+        num_btn_list.append(self.num_8_btn)
+        num_btn_list.append(self.num_9_btn)
+
+        num_btn_pad = 1 + self.frame_pad
+        num_btn_size = self.tile_size - num_btn_pad * 2
+        num_x_pos = self.x_pad + num_btn_pad - self.frame_pad
+        num_y_pos = (self.title_box_height +
+                    self.grid_size +
+                    3 * self.y_pad +
+                    num_btn_pad -
+                    self.frame_pad)
+        
+        if len(num_frame_list) == len(num_btn_list):
+            for i in range(len(num_frame_list)):
+                frame = num_frame_list[i]
+                frame.place(x = num_x_pos,
+                            y = num_y_pos,
+                            width = num_btn_size + self.frame_pad * 2,
+                            height = num_btn_size + self.frame_pad * 2)
+                num_btn_list[i].place(x = self.frame_pad - frame["highlightthickness"],
+                                    y = self.frame_pad - frame["highlightthickness"],
+                                    width = num_btn_size,
+                                    height = num_btn_size)
+                num_x_pos += self.tile_size
+        
+        gen_x_pos = self.grid_size + 2 * self.x_pad
+        gen_y_pos = (self.title_box_height +
+                    self.grid_size +
+                    3 * self.y_pad)
+
+        self.gen_btn.place(x = gen_x_pos,
+                            y = gen_y_pos,
+                            width = self.btn_width,
+                            height = self.tile_size)
 
     def display_output_box(self):
         """
@@ -373,7 +490,8 @@ class GUI():
         x_pos = self.x_pad - self.frame_pad
         y_pos = (self.title_box_height +
                 self.grid_size +
-                3 * self.y_pad -
+                self.tile_size +
+                4 * self.y_pad -
                 self.frame_pad)
         frame_width = (self.window_width -
                         2 * self.x_pad +
@@ -443,6 +561,7 @@ class GUI():
         box_win_y = int(main_win_y + (self.window_height / 3 - self.m_box_height / 2))
         m_box.geometry(str(self.m_box_width) + "x" + str(self.m_box_height) +
                             "+" + str(box_win_x) + "+" + str(box_win_y))
+        m_box["bg"] = "#F8FEB5"
         return m_box
 
     def display_message_error(self, title, message):
@@ -456,8 +575,8 @@ class GUI():
 
         # Display the message frame
         message_frame = Frame(error_box,
-                                highlightthickness = 1,
-                                highlightbackground = self.col_fg_en_norm)
+                                bg = self.col_bg_dis_norm,
+                                highlightthickness=0)
         message = Label(message_frame,
                         text = message,
                         font = self.m_box_font)
@@ -507,8 +626,8 @@ class GUI():
         
         # Display the message frame
         message_frame = Frame(confirm_box,
-                                highlightthickness = 1,
-                                highlightbackground = self.col_fg_en_norm)
+                                bg = self.col_bg_dis_norm,
+                                highlightthickness=0)
         message = Label(message_frame,
                         text = message,
                         font = self.m_box_font)
@@ -524,7 +643,9 @@ class GUI():
                         height = message_height)
 
         # Display the buttons
-        user_confirm = [False] # Updated depending on which button pressed
+        user_confirm = BooleanVar() # Updated depending on which button pressed
+        user_confirm.set(False)
+        
         yes_btn_frame = Frame(confirm_box,
                         bg = self.col_bg_en_norm,
                         highlightthickness = 1,
@@ -546,6 +667,7 @@ class GUI():
         btn_width = self.tile_size * 3
         yes_x_pos = self.m_box_width / 2 - btn_width - self.x_pad / 2
         y_pos = message_height + self.y_pad * 2 - self.m_box_frame_pad
+        
         yes_btn_frame.place(x = yes_x_pos,
                         y = y_pos,
                         width = btn_width + self.m_box_frame_pad * 2,
@@ -556,6 +678,7 @@ class GUI():
                     height = self.tile_size)
 
         no_x_pos = self.m_box_width / 2 + self.x_pad / 2
+        
         no_btn_frame.place(x = no_x_pos,
                             y = y_pos,
                             width = btn_width + self.m_box_frame_pad * 2,
@@ -567,22 +690,18 @@ class GUI():
         
         # Wait for the confirmation box to be closed
         self.ui.wait_window(confirm_box)
-        return user_confirm[0]
+        return user_confirm.get()
 
     # Button Functions
-    def message_box_choice(self, m_box : Toplevel, choice : str, confirm : list):
+    def message_box_choice(self, m_box : Toplevel, choice : str, confirm : BooleanVar):
         """
         A function to handle a message box choice.
         """
         # Update the list with True or False
         if choice == "yes":
-            #return True
-            confirm.clear()
-            confirm.append(True)
+            confirm.set(True)
         else:
-            #return False
-            confirm.clear()
-            confirm.append(False)
+            confirm.set(False)
         
         # Destroy the current message box
         m_box.destroy()
@@ -613,18 +732,18 @@ class GUI():
         self.grid.user_rows.clear()
         self.grid.user_rows = self.get_user_rows()
 
-        ## Hard coded grid for testing
+        # Hard coded grid for testing
         #rows = []
-        ##Easy
-        #rows.append([0, 0, 4, 0, 0, 9, 0, 1, 8])
-        #rows.append([0, 0, 1, 0, 0, 0, 0, 0, 9])
-        #rows.append([0, 3, 0, 0, 8, 1, 0, 7, 6])
-        #rows.append([0, 6, 0, 0, 0, 5, 2, 9, 7])
-        #rows.append([0, 0, 0, 4, 0, 2, 0, 0, 0])
-        #rows.append([7, 2, 3, 9, 0, 0, 0, 5, 0])
-        #rows.append([5, 8, 0, 1, 9, 0, 0, 4, 0])
-        #rows.append([1, 0, 0, 0, 0, 0, 9, 0, 0])
-        #rows.append([3, 9, 0, 7, 0, 0, 8, 0, 0])
+        ##Extreme 2
+        #rows.append([0, 0, 0, 8, 1, 0, 3, 0, 0])
+        #rows.append([8, 3, 0, 0, 0, 0, 0, 0, 0])
+        #rows.append([0, 0, 0, 0, 0, 5, 4, 0, 1])
+        #rows.append([7, 0, 0, 0, 0, 0, 0, 2, 9])
+        #rows.append([0, 0, 0, 2, 5, 7, 0, 0, 0])
+        #rows.append([5, 8, 0, 0, 0, 0, 0, 0, 3])
+        #rows.append([2, 0, 5, 1, 0, 0, 0, 0, 0])
+        #rows.append([0, 0, 0, 0, 0, 0, 0, 9, 4])
+        #rows.append([0, 0, 3, 0, 7, 4, 0, 0, 0])
         #self.grid.user_rows = rows
         
         # Check user entry follows sudoku rules for duplicates
@@ -682,6 +801,21 @@ class GUI():
                 self.grid_ui[ui_row][cell_num]["state"] = "disabled"
         self.reset_btn["state"] = "disabled"
 
+        # Disable the number buttons
+        num_btn_list = []
+        num_btn_list.append(self.num_1_btn)
+        num_btn_list.append(self.num_2_btn)
+        num_btn_list.append(self.num_3_btn)
+        num_btn_list.append(self.num_4_btn)
+        num_btn_list.append(self.num_5_btn)
+        num_btn_list.append(self.num_6_btn)
+        num_btn_list.append(self.num_7_btn)
+        num_btn_list.append(self.num_8_btn)
+        num_btn_list.append(self.num_9_btn)
+
+        for btn in num_btn_list:
+            btn["state"] = "disable"
+
         self.output("Solving...\nPress 'STOP' to stop solving.\n\n")
         
         # Run the GA in its own thread
@@ -712,6 +846,8 @@ class GUI():
 
         self.solve_btn["text"] = "START"
         self.reset_btn["state"] = "normal"
+        for btn in num_btn_list:
+            btn["state"] = "normal"
         
         # Set button states if solved
         if solver.solved:
@@ -873,8 +1009,39 @@ class GUI():
 
         # Reset output window
         self.init_output_box()
-        
-
+    
+    def num_button_press(self, num : int):
+        """
+        A function to handle the user clicking on a number button
+        and placing the value into the currently selected cell.
+        """
+        focused_entry = self.ui.focus_get()
+        if type(focused_entry) == Entry:
+            focused_entry.delete(0, END)
+            focused_entry.insert(0, num)
+    
+    def generate_user_grid(self):
+        """
+        A function to handle the user clicking on the 'Generate'
+        button.
+        """
+        # Display confirmation to user
+        title = "Generate A Grid"
+        message = "Would you like to generate a grid?"
+        if self.display_message_yes_no(title, message):
+            if self.generator.generate():
+                self.grid.user_rows.clear()
+                self.grid.user_rows = self.generator.grid
+                # Update the display
+                for ui_row in range(len(self.grid_ui)):
+                    for cell_num in range(len(self.grid_ui[ui_row])):
+                        if self.grid.user_rows[ui_row][cell_num] > 0:
+                            self.grid_ui[ui_row][cell_num].delete(0, END)
+                            self.grid_ui[ui_row][cell_num].insert(0, self.grid.user_rows[ui_row][cell_num])
+                output_msg = "Grid generated successfully!\n\n"
+            else:
+                output_msg = "There was an issue communicating with the server!\n\n"
+            self.output(output_msg)
         
 
 
