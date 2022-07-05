@@ -391,20 +391,15 @@ class GridSolver():
         for entry in values:
             max = len(entry)
             limit_list.append((0,max-1,int))
-
+        
+        # Produce list of possible indices, multiple attempts to increase unique results found
+        attempts = [50, 100, 5]
+        points = [50, 50, 500]
         results = []
-        solver = ga.GaSolver(f=self.grid, limits= limit_list, mutation = 0.2, deletion = 0.2)
 
-        # Produce list of possible row indices, multiple attempts to increase unique results found
-        attempts = [50, 10, 5]
-        points = [50, 200, 400]
+        solver = ga.GaSolver(f=self.grid, limits= limit_list, mutation = 0.2, deletion = 0.2)
         for _ in range(attempts[self.grid.phase - 1]):
             if self.thread_running:
-                #if self.grid.phase == 3:
-                #    points = 300
-                #else:
-                #    points = 150
-
                 solver.solve(n_iterations=30, n_initial_points = points[self.grid.phase - 1])
                 for point in solver.population:
                     if point.fitness == 100:
