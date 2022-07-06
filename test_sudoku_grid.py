@@ -1,7 +1,7 @@
 import sudoku_grid
 import unittest
 
-class TestMain(unittest.TestCase):
+class TestSudokuGrid(unittest.TestCase):
     """
     A class to perform unittests on functions
     in sudoku_grid
