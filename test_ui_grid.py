@@ -2,6 +2,7 @@ import ui_grid
 import unittest
 from tkinter import *
 
+
 class TestGridUi(unittest.TestCase):
     """
     A class to perform unittests on functions
@@ -80,13 +81,13 @@ class TestGridUi(unittest.TestCase):
         grid = ui_grid.UIGrid(ui, tile_size)
 
         test_grid = [[0]*9] * 9
-        
+
         self.assertEqual(grid.get_user_rows(), test_grid)
 
         test_grid[0] = [1, 0, 0, 0, 0, 0, 0, 0, 0]
         grid.grid[0][0].delete(0, END)
         grid.grid[0][0].insert(0, "1")
-        
+
         self.assertEqual(grid.get_user_rows(), test_grid)
 
 

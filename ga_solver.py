@@ -41,7 +41,7 @@ class SolutionPoint:
             if self.parameters[i] != other.parameters[i]:
                 return False
         return True
-    
+
     def evaluate(self, generation_id: int) -> None:
         """
         A function to calculate the fitness and record which generation
@@ -79,7 +79,7 @@ class SolutionPoint:
             min_value = min(values)
             max_value = max(values)
 
-            # If the parameter values are the same, then cannot generate something else.
+            # If parameter values are the same, cannot generate something else.
             if min_value == max_value:
                 child_parameters.append(min_value)
                 continue
@@ -103,13 +103,13 @@ class GaSolver:
     functions to find the minimum or maximum within the limits.
     """
     def __init__(self,
-                 f: Callable, # The function that should be evaluated.
-                 limits: list, # A list of tuples that contain the limits.
-                 minimise: bool = True, # True => minimise, False => maximise
-                 n_parents: int = 2, # The number of parents for GA.
-                 deletion: float = 0.4, # The deletion fraction for GA.
-                 mutation: float = 0.1, # The mutation fraction for GA.
-                 n_mutations: int = 1, # The number of parameters to mutate.
+                 f: Callable,  # The function that should be evaluated.
+                 limits: list,  # A list of tuples that contain the limits.
+                 minimise: bool = True,  # True => minimise, False => maximise
+                 n_parents: int = 2,  # The number of parents for GA.
+                 deletion: float = 0.4,  # The deletion fraction for GA.
+                 mutation: float = 0.1,  # The mutation fraction for GA.
+                 n_mutations: int = 1,  # The number of parameters to mutate.
                  enable_history: bool = False) -> None:
         self.population = []
         self.f = f
@@ -166,13 +166,13 @@ class GaSolver:
             parameters = self.__generate_parameters()
             point = SolutionPoint(self.f, parameters, generation_id=0)
             self.population.append(point)
-        
+
     def delete(self) -> int:
         """
-        A function to remove a fraction of the points that are not in the 
+        A function to remove a fraction of the points that are not in the
         Pareto front.
         """
-        
+
         # Sort the population by fitness.
         self.population.sort(key=lambda x: x.fitness, reverse=True)
 
@@ -210,11 +210,11 @@ class GaSolver:
             new_point = points[0].create(points[1:], generation_id)
             self.population.append(new_point)
 
-        return n_points    
+        return n_points
 
     def mutate(self, generation_id: int) -> int:
         """
-        A function to mutate a fraction of the points. 
+        A function to mutate a fraction of the points.
         """
         indices = list(range(len(self.population)))
 
@@ -236,7 +236,7 @@ class GaSolver:
             # Get the selected point.
             idx = indices[i]
             point = self.population[idx]
-            
+
             # Can only mutate all of the parameters.
             n_parameters = len(point.parameters)
             if n_parameters < self.n_mutations:
@@ -244,13 +244,14 @@ class GaSolver:
                 self.n_mutations = n_parameters
 
             if n_limits != n_parameters:
-                print("Warning: number of limits does not match parameters.  Cannot mutate.")
+                print("Warning: number of limits does not match parameters.")
+                print("  Cannot mutate.")
                 return -1
 
             # Create a shuffled list of parameter indices.
             parameter_indices = list(range(n_parameters))
             random.shuffle(parameter_indices)
-            
+
             # Mutate the parameters.
             for j in range(self.n_mutations):
                 parameter_index = parameter_indices[j]
@@ -259,14 +260,15 @@ class GaSolver:
                 limit = self.limits[parameter_index]
                 value = self.__generate_parameter(limit)
                 point.parameters[parameter_index] = value
-            
+
             # Re-evaluate the point with the new parameter settings.
             point.evaluate(generation_id)
         return n_mutate
 
-    def solve(self, n_iterations:int=300, n_initial_points:int=100) -> int:
+    def solve(self, n_iterations: int = 300,
+              n_initial_points: int = 100) -> int:
         """
-        A function to try to find a solution.  The function should be 
+        A function to try to find a solution.  The function should be
         given a number of interations and number of initial points.
         The number of interations are the number of generations that the
         genetic algorithm will run.
@@ -282,7 +284,7 @@ class GaSolver:
             self.__record_points()
 
         exit_status = 0
-        
+
         # Generation 0 is used for the initial population.
         for generation_id in range(1, n_iterations+1):
 

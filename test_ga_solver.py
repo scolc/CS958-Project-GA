@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 import unittest
 
 
-def f_1(p:list) -> float:
+def f_1(p: list) -> float:
     """
     The simplest possible test function, which returns the input variable.
     """
     return p[0]
 
-def f_2(p:list) -> float:
+
+def f_2(p: list) -> float:
     """
     A function that expects four input parameters and returns
     a fitness value.
@@ -18,6 +19,7 @@ def f_2(p:list) -> float:
     result = (p[1]**2 + p[2])
     result += math.cos(p[3])*p[0] + p[1]**2
     return result
+
 
 class TestSolutionPoint(unittest.TestCase):
     def test_evaluation(self):
@@ -50,12 +52,13 @@ class TestSolutionPoint(unittest.TestCase):
         ]
         point_2 = ga_solver.SolutionPoint(f_1, parameters_2, generation_id=1)
         point_3 = point_1.create([point_2], generation_id=2)
-        
+
         n_parameters = len(parameters_1)
         for i in range(n_parameters):
-            
+
             # The test data must use the same type for the test to be valid.
-            self.assertTrue(type(point_1.parameters[i]), type(point_2.parameters[i]))
+            self.assertTrue(type(point_1.parameters[i]),
+                            type(point_2.parameters[i]))
 
             # Find the minimum and the maximum.
             min_value = min([point_1.parameters[i], point_2.parameters[i]])
@@ -67,7 +70,6 @@ class TestSolutionPoint(unittest.TestCase):
 
         # Check the type.
         self.assertTrue(isinstance(point_3.parameters[i], type(min_value)))
-
 
 
 class TestGaSolver(unittest.TestCase):
@@ -106,10 +108,18 @@ class TestGaSolver(unittest.TestCase):
         Test the delete function.
         """
         solver = ga_solver.GaSolver(f_1, limits=[], deletion=0.75)
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [0, 0], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [1, 0], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [1, 1], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [2, 1], generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [0, 0],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [1, 0],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [1, 1],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [2, 1],
+                                                         generation_id=0))
         n_delete = solver.delete()
         self.assertEqual(n_delete, 3)
         self.assertEqual(len(solver.population), 1)
@@ -121,9 +131,15 @@ class TestGaSolver(unittest.TestCase):
         Test the create_points function.
         """
         solver = ga_solver.GaSolver(f_1, limits=[], n_parents=3)
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [0, 0], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [5, 5], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [3, 7], generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [0, 0],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [5, 5],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [3, 7],
+                                                         generation_id=0))
         n_points = solver.create_points(2, 1)
         self.assertTrue(n_points, 2)
         self.assertGreaterEqual(solver.population[3].parameters[0], 0)
@@ -145,10 +161,18 @@ class TestGaSolver(unittest.TestCase):
             (0, 5, int)
         ]
         solver = ga_solver.GaSolver(f_1, limits, mutation=1.0, n_mutations=2)
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [0, 0], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [1, 0], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [1, 1], generation_id=0))
-        solver.population.append(ga_solver.SolutionPoint(solver.f, [2, 1], generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [0, 0],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [1, 0],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [1, 1],
+                                                         generation_id=0))
+        solver.population.append(ga_solver.SolutionPoint(solver.f,
+                                                         [2, 1],
+                                                         generation_id=0))
         solver.population[0].score = 0
         solver.population[1].score = 1
         solver.population[2].score = 0
@@ -165,7 +189,7 @@ class TestGaSolver(unittest.TestCase):
 
     def test_solve(self):
         """
-        A function to verify that the solver is functioning correctly. 
+        A function to verify that the solver is functioning correctly.
         """
 
         # Set the limits
@@ -196,7 +220,7 @@ class TestGaSolver(unittest.TestCase):
         plt.ylabel("Fitness")
         plt.savefig("solve.png")
         plt.close()
-        
+
 
 if __name__ == '__main__':
     unittest.main()
