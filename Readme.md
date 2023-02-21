@@ -3,8 +3,6 @@ A Genetic Algorithm Approach to Solving Sudoku Puzzles
 <br>
 This application solves a sudoku puzzle using a genetic algorithm.
 <br>
-Puzzles are either entered by the user directly or generated via the API.
-<br>
 ## Features
 * Solves sudoku puzzles.
 * The user can enter a sudoku puzzle into the grid interface.
@@ -16,5 +14,5 @@ Puzzles are either entered by the user directly or generated via the API.
 * Once solved, the user can enter their guessed values and validate them.
 <br>
 <br>
-To run this application, check the releases tab for the solver.zip.
+To run this application, check the releases tab for the solver.zip.<br>
 Extract the zip to a new folder and run the solver.exe.
