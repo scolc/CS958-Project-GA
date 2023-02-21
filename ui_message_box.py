@@ -1,6 +1,6 @@
 from tkinter import *
 
-import main
+import gui
 
 
 class UIMessageBox():
@@ -11,7 +11,7 @@ class UIMessageBox():
     def __init__(self, ui: Tk,
                  tile_size: int):
         self.ui = ui
-        self.colours = main.Colours()
+        self.colours = gui.Colours()
         self.tile_size = tile_size
         self.pad = int(self.tile_size / 2)
 

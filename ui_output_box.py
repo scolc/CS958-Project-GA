@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 
-import main
+import gui
 
 
 class UIOutputBox():
@@ -15,7 +15,7 @@ class UIOutputBox():
         self.ui = ui
         self.tile_size = tile_size
         self.output_font = "Calibri " + str(int(self.tile_size / 3))
-        self.colours = main.Colours()
+        self.colours = gui.Colours()
 
         self.output_frame = Frame(self.ui,
                                   bg=self.colours.bg_dis_norm,
@@ -58,8 +58,8 @@ class UIOutputBox():
                    "for the puzzle into the grid above.\n" +
                    "Type or click on the number buttons to fill " +
                    "each cell.\n" +
-                   "Click 'Generate Grid' to generate a new " +
-                   "puzzle grid.\n" +
+                   #"Click 'Generate Grid' to generate a new " +
+                   #"puzzle grid.\n" +
                    "Click 'START' to find the solution.\n" +
                    "Click 'RESET GRID' to clear the grid.\n\n")
         self.output(message)

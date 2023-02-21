@@ -3,7 +3,7 @@ from tkinter import *
 
 import sudoku_grid as sg
 import grid_solver as gsol
-import main
+import gui
 import ui_grid
 import sudoku_generator as gen
 import ui_output_box
@@ -23,7 +23,7 @@ class UIButtons():
         self.ui = ui
         self.tile_size = tile_size
         self.grid_ui = grid_ui
-        self.colours = main.Colours()
+        self.colours = gui.Colours()
         self.grid = sg.SudokuGrid()
         self.output = output_box
         self.generator = gen.SudokuGenerator()
@@ -42,7 +42,7 @@ class UIButtons():
         self.valid_entry_btn = Button()
         self.clear_entry_btn = Button()
         self.reset_btn = Button()
-        self.gen_btn = Button()
+        #self.gen_btn = Button()
 
         # Number Buttons
         self.num_1_btn = Button()
@@ -98,10 +98,10 @@ class UIButtons():
                                 bg=self.colours.bg_en_norm,
                                 highlightthickness=1,
                                 highlightbackground=fg_col)
-        gen_btn_frame = Frame(self.ui,
-                              bg=self.colours.bg_en_norm,
-                              highlightthickness=1,
-                              highlightbackground=fg_col)
+        #gen_btn_frame = Frame(self.ui,
+        #                      bg=self.colours.bg_en_norm,
+        #                      highlightthickness=1,
+        #                      highlightbackground=fg_col)
         frame_list = []
         frame_list.append(solve_btn_frame)
         frame_list.append(show_sol_btn_frame)
@@ -109,7 +109,7 @@ class UIButtons():
         frame_list.append(valid_entry_btn_frame)
         frame_list.append(clear_entry_btn_frame)
         frame_list.append(reset_btn_frame)
-        frame_list.append(gen_btn_frame)
+        #frame_list.append(gen_btn_frame)
 
         # Button list
         self.solve_btn = Button(solve_btn_frame,
@@ -140,10 +140,10 @@ class UIButtons():
                                 text="RESET GRID",
                                 font=self.btn_font,
                                 command=self.reset_grid)
-        self.gen_btn = Button(gen_btn_frame,
-                              text="Generate Grid",
-                              font=self.btn_font,
-                              command=self.generate_user_grid)
+        #self.gen_btn = Button(gen_btn_frame,
+        #                      text="Generate Grid",
+        #                      font=self.btn_font,
+        #                      command=self.generate_user_grid)
         btn_list = []
         btn_list.append(self.solve_btn)
         btn_list.append(self.show_sol_btn)
@@ -151,7 +151,7 @@ class UIButtons():
         btn_list.append(self.valid_entry_btn)
         btn_list.append(self.clear_entry_btn)
         btn_list.append(self.reset_btn)
-        btn_list.append(self.gen_btn)
+        #btn_list.append(self.gen_btn)
 
         self.place_buttons(frames=frame_list,
                            buttons=btn_list,
@@ -360,7 +360,7 @@ class UIButtons():
         num_btn_list.append(self.num_7_btn)
         num_btn_list.append(self.num_8_btn)
         num_btn_list.append(self.num_9_btn)
-        num_btn_list.append(self.gen_btn)
+        #num_btn_list.append(self.gen_btn)
 
         for btn in num_btn_list:
             btn["state"] = "disable"
@@ -394,7 +394,7 @@ class UIButtons():
             self.show_hint_btn["state"] = "normal"
             self.valid_entry_btn["state"] = "normal"
             self.clear_entry_btn["state"] = "normal"
-            self.gen_btn["state"] = "disabled"
+            #self.gen_btn["state"] = "disabled"
 
             # Output new instructions to user
             message = ("Click 'Show Solution' to display the solution.\n" +
@@ -473,7 +473,7 @@ class UIButtons():
         self.show_hint_btn["state"] = "disabled"
         self.valid_entry_btn["state"] = "disabled"
         self.clear_entry_btn["state"] = "disabled"
-        self.gen_btn["state"] = "normal"
+        #self.gen_btn["state"] = "normal"
 
         # Reset output window
         self.output.init_output_box()
@@ -516,7 +516,7 @@ class UIButtons():
         btn_list.append(self.num_7_btn)
         btn_list.append(self.num_8_btn)
         btn_list.append(self.num_9_btn)
-        btn_list.append(self.gen_btn)
+        #btn_list.append(self.gen_btn)
         btn_list.append(self.solve_btn)
         btn_list.append(self.reset_btn)
 

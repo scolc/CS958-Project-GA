@@ -3,7 +3,7 @@ from tkinter import *
 from typing import Callable
 
 import sudoku_grid as sg
-import main
+import gui
 
 
 class UIGrid():
@@ -14,7 +14,7 @@ class UIGrid():
     def __init__(self, ui: Tk, tile_size: int):
         self.ui = ui
         self.tile_size = tile_size
-        self.colours = main.Colours()
+        self.colours = gui.Colours()
 
         self.grid_size = 9 * self.tile_size
 

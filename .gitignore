@@ -1,8 +1,6 @@
-__pycache__/*.*
-build/*.*
-build/main/*.*
-build/main/localpycs/*.*
+__pycache__/
+build/
+output/
 grid_trial.py
 puzzles.txt
 trial_api.py
-main.spec
